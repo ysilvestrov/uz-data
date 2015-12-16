@@ -1,0 +1,13 @@
+extends layout
+
+block extrahead
+
+
+block content
+  h1 Укрзалізниця: статистика
+  form(name="myForm")
+    label Кількість поїздів
+      input(type="number", name="minTrains", ng-model="minTrains", min="0", max="99",required="required")
+  div#grid1.grid(ui-grid-selection="", ui-grid-exporter="", data-ui-grid="gridOptions")
+
+  textarea(ng-model="citiesData")

@@ -1,0 +1,14 @@
+doctype html
+html(data-ng-app="app")
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel="stylesheet", href="/stylesheets/ui-grid.css", type="text/css")
+    script(src='/javascripts/angular.js')
+    script(src='/javascripts/jinqjs.js')
+    script(src='/javascripts/ui-grid.js')
+    script(src='/javascripts/script.js')
+
+   block extrahead
+  body(data-ng-controller="demoCtrl")
+    block content
