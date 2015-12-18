@@ -7,6 +7,7 @@ var express = require('express');
 var router = express.Router();
 var jinqJs = require('jinq');
 var path = require('path');
+var moment = require('moment');
 
 var uzUrl = path.join(__dirname, '/../public/data') + '/uz.json';
 var citiesUrl = path.join(__dirname, '/../public/data') + '/cities.json';
@@ -14,8 +15,7 @@ var citiesUrl = path.join(__dirname, '/../public/data') + '/cities.json';
 var fs = require('fs');
 
 /* GET users listing. */
-router.get('/', function (req, res, next) {
-
+function CalculateConnections(showConvenientRoutesOnly) {
   var citiesData = JSON.parse(fs.readFileSync(citiesUrl, 'utf8'));
   var uzData = JSON.parse(fs.readFileSync(uzUrl, 'utf8'));
 
@@ -50,12 +50,15 @@ router.get('/', function (req, res, next) {
           stations[entry.station.id] = {
             id: entry.station.id,
             name: entry.station.name,
-            trains: [{id: train.id, name: train.name, route: train.route, arrive: entry.arrive}],
+            trains: [{id: train.id, name: train.name, route: train.route, arrive: entry.arrive, depart: entry.depart}],
             trainsCount: 1,
             timetable: {}
           };
         }
-        stations[entry.station.id].timetable[train.id] = entry.arrive;
+        stations[entry.station.id].timetable[train.id] =
+          entry.arrive == "" ?
+            moment(entry.arrive, "HH:mm") :
+            moment(entry.depart, "HH:mm");
       });
   });
 
@@ -86,26 +89,51 @@ router.get('/', function (req, res, next) {
   cities.forEach(function (cityFrom) {
     var connection = {name: cityFrom.name};
     cities.forEach(function (cityTo) {
-      connection[cityTo.name] = "-";
-      if (typeof(cityFrom.stations) != "undefined" && typeof(cityTo.stations) != "undefined") {
-        cityFrom.stations.forEach(function (stationFrom) {
-          if (typeof (stationFrom.timetable) != "undefined") {
-            cityTo.stations.forEach(function (stationTo) {
-              if (typeof (stationTo.timetable) != "undefined") {
-                Object.keys(stationFrom.timetable).forEach(function (id) {
-                  if (typeof(stationTo.timetable[id]) != "undefined") {
-                    connection[cityTo.name] = "+";
-                  }
-                })
-              }
-            })
-          }
-        })
+      if (cityTo == cityFrom) {
+        connection[cityTo.name] = "+";
+      } else {
+        connection[cityTo.name] = "-";
+        if (typeof(cityFrom.stations) != "undefined" && typeof(cityTo.stations) != "undefined") {
+          cityFrom.stations.forEach(function (stationFrom) {
+            if (typeof (stationFrom.timetable) != "undefined") {
+              cityTo.stations.forEach(function (stationTo) {
+                if (typeof (stationTo.timetable) != "undefined") {
+                  Object.keys(stationFrom.timetable).forEach(function (id) {
+                    if (typeof(stationTo.timetable[id]) != "undefined") {
+                      if (showConvenientRoutesOnly) {
+                        var timeTo = stationTo.timetable[id].hours();
+                        var timeFrom = stationFrom.timetable[id].hours();
+                        if (
+                          (timeFrom >= 17 && timeTo >= 6 && timeTo <= 15) ||
+                          (timeFrom <= 12 && timeTo >= 6 && timeTo <= 15)
+                        ) {
+                          connection[cityTo.name] = "+";
+                        }
+                      } else {
+                        connection[cityTo.name] = "+";
+                      }
+                    }
+                  })
+                }
+              })
+            }
+          })
+        }
       }
     });
     connections.push(connection);
   });
+  return connections;
+}
 
+router.get('/:conv', function (req, res, next) {
+  var showConvenientRoutesOnly = typeof(req.params.conv) != "undefined" && req.params.conv.toLowerCase() == "true";
+  var connections = CalculateConnections(showConvenientRoutesOnly);
+  res.json(connections);
+});
+
+router.get('/', function (req, res, next) {
+  var connections = CalculateConnections(false);
   res.json(connections);
 });
 

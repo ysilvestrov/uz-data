@@ -26,6 +26,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/users', users);
 app.use('/cities', cities);
+app.use('/cities/:conv', cities);
+
+app.use('/user/:id', function (req, res) {
+  res.send('user ' + req.params.id);
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
