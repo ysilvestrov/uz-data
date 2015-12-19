@@ -11,7 +11,6 @@ var Connectivity = function () {
 
 var path = require('path');
 var moment = require('moment');
-var jinqJs = require('jinq');
 var fs = require('fs');
 
 var uzUrl = path.join(__dirname, '/../public/data') + '/uz.json';
@@ -19,24 +18,10 @@ var citiesUrl = path.join(__dirname, '/../public/data') + '/cities.json';
 
 
 function getTrains() {
-  var uzData = JSON.parse(fs.readFileSync(uzUrl, 'utf8'));
-
-  return new jinqJs()
-    .from(uzData)
-    //.distinct(['id'])
-    .select(function (train) {
-      return {id: train.id, name: train.name, route: train.route, timeTable: train.timeTable};
-    });
+  return JSON.parse(fs.readFileSync(uzUrl, 'utf8'));
 }
 function getCities() {
-
-  var citiesData = JSON.parse(fs.readFileSync(citiesUrl, 'utf8'));
-
-  return new jinqJs()
-    .from(citiesData)
-    .select(function (city) {
-      return {name: city.name, stations: city.stations};
-    });
+  return JSON.parse(fs.readFileSync(citiesUrl, 'utf8'));
 }
 
 function getStations(trains) {
