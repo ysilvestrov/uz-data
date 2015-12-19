@@ -9,9 +9,9 @@ var Connectivity = function () {
   fillCitiesStations(stations, this.cities);
 };
 
-var jinqJs = require('jinq');
 var path = require('path');
 var moment = require('moment');
+var jinqJs = require('jinq');
 var fs = require('fs');
 
 var uzUrl = path.join(__dirname, '/../public/data') + '/uz.json';
