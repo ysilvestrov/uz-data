@@ -52,7 +52,7 @@
         }
       };
 
-      $http.get('/cities/true').
+      $http.get('/cities/summary').
       success(function (data, status, headers, config) {
         $scope.gridOptions.data = data;
       }).
