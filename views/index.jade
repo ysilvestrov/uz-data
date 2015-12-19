@@ -5,5 +5,16 @@ block extrahead
 
 block content
   h1 Укрзалізниця: статистика
+
+  form(name="myForm")
+    label(for="singleSelect") Потяги:
+    select#singleSelect(name="singleSelect", ng-model="show")
+      option(value="") Всі
+      option(value="to") До
+      option(value="from") З
+
   div#grid1.grid(ui-grid-selection="", ui-grid-exporter="", data-ui-grid="gridOptions")
+
+  h2 Кількість зв'язків
+  div#grid2.grid(ui-grid-selection="", ui-grid-exporter="", data-ui-grid="gridOptions2")
 

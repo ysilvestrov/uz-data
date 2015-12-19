@@ -52,13 +52,60 @@
         }
       };
 
-      $http.get('/cities/summary').
-      success(function (data, status, headers, config) {
-        $scope.gridOptions.data = data;
-      }).
-      error(function (data, status, headers, config) {
-        // log error
-      });
+      $scope.gridOptions2 = {
+        //columnDefs: [
+        //  { field: 'name' },
+        //  { field: 'gender', visible: false},
+        //  { field: 'company' }
+        //],
+        enableGridMenu: true,
+        enableSelectAll: true,
+        exporterCsvFilename: 'uz.csv',
+        exporterOlderExcelCompatibility: true,
+        exporterPdfDefaultStyle: {fontSize: 9},
+        exporterPdfTableStyle: {margin: [30, 30, 30, 30]},
+        exporterPdfTableHeaderStyle: {fontSize: 10, bold: true, italics: true, color: 'red'},
+        exporterPdfHeader: { text: "My Header", style: 'headerStyle' },
+        exporterPdfFooter: function ( currentPage, pageCount ) {
+          return { text: currentPage.toString() + ' of ' + pageCount.toString(), style: 'footerStyle' };
+        },
+        exporterPdfCustomFormatter: function ( docDefinition ) {
+          docDefinition.styles.headerStyle = { fontSize: 22, bold: true };
+          docDefinition.styles.footerStyle = { fontSize: 10, bold: true };
+          return docDefinition;
+        },
+        exporterPdfOrientation: 'portrait',
+        exporterPdfPageSize: 'LETTER',
+        exporterPdfMaxGridWidth: 500,
+        exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
+        onRegisterApi: function(gridApi){
+          $scope.gridApi = gridApi;
+        }
+      };
+
+      $scope.show = "";
+
+      $http
+        .get('/cities/' + $scope.show)
+        .success(function (data, status, headers, config) {
+          $scope.gridOptions.data = data;
+        });
+
+      $http
+        .get('/cities/summary' + $scope.show)
+        .success(function (data, status, headers, config) {
+          $scope.gridOptions2.data = data;
+        });
+
+      $scope.$watch('show', function(oldVal, newVal)
+      {
+        $http
+          .get('/cities/' + $scope.show)
+          .success(function (data, status, headers, config) {
+            $scope.gridOptions.data = data;
+          });
+      })
+
     }]);
 }());
 
