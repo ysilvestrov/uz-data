@@ -61,17 +61,14 @@ function getStations(trains) {
       });
   });
 
-  return new jinqJs()
-    .from(stations)
-    .where(function (station) {
-      return typeof(station) != "undefined"
-    })
-    .select(function (station) {
-      return {
-        id: station.id, name: station.name,
-        trainsCount: station.trainsCount, timetable: station.timetable
-      }
-    });
+  var result = [];
+  stations.forEach(function(s) {
+    if (typeof(s) != "undefined") {
+      result.push(s);
+    }
+  });
+
+  return result;
 }
 
 function fillCitiesStations(stations, cities) {
